@@ -4,11 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
+use App\Traits\HttpResponses;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    use HttpResponses;
+    private function isAuthorized(Task $task)
+    {
+        if(Auth::user()->id != $task->user_id) {
+            return $this->error('', 'You are not authorized!', 403);
+        }
+    }
     /**
      * Display a listing of the resource.
      */
@@ -17,13 +27,6 @@ class TaskController extends Controller
         return TaskResource::collection(Task::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -36,9 +39,9 @@ class TaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse|TaskResource
     {
-        //
+        return $this->isAuthorized(Task::find($id)) ?? new TaskResource(Task::find($id));
     }
 
     /**

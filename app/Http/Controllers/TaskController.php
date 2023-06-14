@@ -11,7 +11,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json('This is the index method of the TaskController');
     }
 
     /**

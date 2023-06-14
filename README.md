@@ -41,3 +41,16 @@
 ```
 php artisan make:request RequestName
 ```
+
+### To protect routes with sanctum, add the following code to `routes/api.php`
+```
+Route::middleware('auth:sanctum')->group(function () {
+    // Protected routes
+});
+
+or
+ 
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    // Protected routes
+});
+```

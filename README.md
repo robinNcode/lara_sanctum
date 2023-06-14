@@ -36,3 +36,8 @@
       }
    }
 ```
+
+### To make a request run the following command
+```
+php artisan make:request RequestName
+```

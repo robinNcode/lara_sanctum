@@ -2,29 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     use HttpResponses;
 
     /**
-     * @throws ValidationException
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginUserRequest $request): JsonResponse
     {
-        $this->validate($request, [
-            'email' => 'required|email',
-            'password' => 'min:8|required'
-        ]);
+        $request->validated($request->all());
 
-        return $this->success([$request->all()], 'This is the login method');
+        if(!Auth::attempt($request->only('email', 'password'))) {
+            return $this->error('', 'Invalid login credentials!', 401);
+        }
+
+        $user = User::where('email', $request->email)->firstOrFail();
+
+        return $this->success([
+            'user' => $user,
+            'token' => $user->createToken('API Token of: ' . $user->name)->plainTextToken
+        ], 'Login successful!');
     }
 
     public function register(StoreUserRequest $request): JsonResponse
@@ -41,7 +47,7 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $user->createToken('API Token of: ' . $user->name)->plainTextToken
             ],
-            'Registration successful');
+            'Registration successful!');
     }
 
     public function logout(Request $request)

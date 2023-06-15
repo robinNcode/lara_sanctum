@@ -8,24 +8,28 @@ use App\Models\Task;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
     use HttpResponses;
-    private function isAuthorized(Task $task)
+
+    private AuthController $auth;
+
+    public function __construct()
     {
-        if(Auth::user()->id != $task->user_id) {
-            return $this->error('', 'You are not authorized!', 403);
-        }
+        $this->auth = new AuthController();
     }
+
     /**
      * Display a listing of the resource.
      */
-    public function index(): AnonymousResourceCollection
+    public function index(): JsonResponse
     {
-        return TaskResource::collection(Task::all());
+        if($this->auth->check()->getStatusCode() != 200)
+            return $this->error([], 'User is not authenticated!', 401);
+        else
+            return $this->success(TaskResource::collection(Task::all()), 'Tasks retrieved successfully!');
     }
 
 
@@ -42,7 +46,7 @@ class TaskController extends Controller
      */
     public function show(string $id): JsonResponse|TaskResource
     {
-        return $this->isAuthorized(Task::find($id)) ?? new TaskResource(Task::find($id));
+        return $this->isAuthorized(session()->get('user')->id) ?? new TaskResource(Task::find($id));
     }
 
     /**

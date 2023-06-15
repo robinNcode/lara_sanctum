@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,5 +17,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function(){
     return view('welcome');
-});
+})->name('signin-view');
 Route::post('signin', [AuthController::class, 'signin'])->name('signin');
+
+
+/**
+ * Protected Routes ...
+ */
+/**
+ * Protected Routes ...
+ */
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('app/signout', [AuthController::class, 'signout']);
+    Route::get('app/tasks', [TaskController::class, 'index'])->name('home');
+});

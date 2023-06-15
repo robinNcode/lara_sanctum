@@ -32,6 +32,22 @@ class AuthController extends Controller
         ], 'Login successful!');
     }
 
+    /**
+     * Check if the user is authenticated.
+     */
+    public function check(): JsonResponse
+    {
+        if(Auth::check())
+            return $this->success([], 'User is authenticated!');
+        else
+            return $this->error([], 'User is not authenticated!', 401);
+    }
+
+
+    /**
+     * @param StoreUserRequest $request
+     * @return JsonResponse
+     */
     public function register(StoreUserRequest $request): JsonResponse
     {
         $request->validated($request->all());
@@ -49,7 +65,7 @@ class AuthController extends Controller
             'Registration successful!');
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
         Auth::user()->currentAccessToken()->delete();
 

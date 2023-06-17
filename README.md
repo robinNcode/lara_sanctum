@@ -41,7 +41,21 @@
 ```
 php artisan make:request RequestName
 ```
+After creating a request don't forget to change the 
+```
+    public function authorize(): bool
+    {
+        return false;
+    }
+```
 
+to 
+```
+    public function authorize(): bool
+    {
+        return true;
+    }
+```
 ### To protect routes with sanctum, add the following code to `routes/api.php`
 ```
 Route::middleware('auth:sanctum')->group(function () {
